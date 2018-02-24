@@ -11,6 +11,8 @@ public:
 
 	static void startupAnimation(int length) {
 		const uint8_t middle = FL::PixelCount / 2;
+		const uint8_t brightness = 5;
+
 		if (length > middle) {
 			timeout.schedule(0, go);
 			return;
@@ -18,21 +20,12 @@ public:
 
 		FL::clear();
 
-		int i = middle;
-		for (int k = length; k > 0 && i < FL::PixelCount; k--, i++) {
-			FL::renderBuffer[i].green = 1;
-			FL::renderBuffer[i].red = 1;
-			FL::renderBuffer[i].blue = 1;
-			FL::renderBuffer[i].white = 1;
-		}
+		auto lengthInBytes = length * sizeof(typename FL::PixelType);
+		auto offset = FL::renderBuffer + middle;
+		memset(offset, brightness, lengthInBytes);
 
-		i = middle;
-		for (int k = length; k > 0 && i >= 0; k--, i--) {
-			FL::renderBuffer[i].green = 1;
-			FL::renderBuffer[i].red = 1;
-			FL::renderBuffer[i].blue = 1;
-			FL::renderBuffer[i].white = 1;
-		}
+		offset = FL::renderBuffer + middle - length;
+		memset(offset, brightness, lengthInBytes);
 
 		FL::display();
 		timeout.schedule(0, startupAnimation, length + 1);

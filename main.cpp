@@ -102,7 +102,7 @@ public:
 };
 
 template<uint8_t no>
-class LedModeHandler {
+class BackLedModeHandler {
 public:
 	static void handle(ButtonEvent event) {
 		if (event == ButtonEventPress) {
@@ -111,14 +111,44 @@ public:
 	}
 };
 
-void handleButtons() {
-	button1.handle(ButtonHandler<1>::handle);
-	button2.handle(ButtonHandler<2>::handle);
-	button3.handle(ButtonHandler<3>::handle);
+uint8_t r = 0;
+uint8_t g = 0;
+uint8_t b = 0;
 
-	button4.handle(LedModeHandler<0>::handle);
-	button5.handle(LedModeHandler<1>::handle);
-	button6.handle(LedModeHandler<2>::handle);
+
+template<uint8_t no>
+class FrontLedModeHandler {
+public:
+	static void handle(ButtonEvent event) {
+		if (event != ButtonEventPress) {
+			return;
+		}
+
+		switch (no) {
+		case 0:
+			r = (r + 1) & MaxPixelBrightness;
+			break;
+		case 1:
+			g = (g + 1) & MaxPixelBrightness;
+			break;
+		case 2:
+			b = (b + 1) & MaxPixelBrightness;
+			break;
+		}
+
+		Front::fill(r, g, b, 0);
+		Front::display();
+	}
+};
+
+void handleButtons() {
+	button1.handle(FrontLedModeHandler<0>::handle);
+	button2.handle(FrontLedModeHandler<1>::handle);
+	button3.handle(FrontLedModeHandler<2>::handle);
+
+	button4.handle(BackLedModeHandler<0>::handle);
+	button5.handle(BackLedModeHandler<1>::handle);
+	button6.handle(BackLedModeHandler<2>::handle);
 }
 
 void loop() {
